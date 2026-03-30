@@ -1,4 +1,6 @@
 import { useState } from "react";
+import process from 'node:process';
+
 
 const theme = {
   bg: "#081120",
@@ -266,15 +268,19 @@ export default function App() {
     if (!query.trim()) return;
     setLoading(true);
     setResult(null);
-
+    console.log("function fucking called ")
+     console.log(`${import.meta.env.VITE_API_BASE_URL}/tasks/run`)
     try {
-      const res = await fetch(`${process.env.VITE_API_BASE_URL}/tasks/run`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/tasks/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
       });
-
+      console.log(import.meta.env.VITE_API_BASE_URL);
+      console.log("xxxxxxxxxxxxxxxxx",res)
       const data = await res.json();
+      console.log("xxxxxxxxxxxxxxxxx",data)
+
       setResult(data);
 
       if (data?.answer) {
@@ -284,6 +290,8 @@ export default function App() {
         setPrBody(
           `AgentForge generated this change based on project analysis.\n\nSummary:\n${data.answer}`
         );
+      }else{
+        console.log("rrrrrrrrrrrrrrrrrrrr",data)
       }
     } catch (error) {
       setResult({
@@ -305,7 +313,7 @@ export default function App() {
     setTestStub(null);
 
     try {
-      const res = await fetch(`${process.env.VITE_API_BASE_URL}/actions/generate-test-stub`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/actions/generate-test-stub`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ function_name: functionName, language: "python" }),
@@ -321,7 +329,7 @@ export default function App() {
   };
 
   const handleValidatePython = async () => {
-    const res = await fetch(`${process.env.VITE_API_BASE_URL}/actions/validate-python`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/actions/validate-python`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: pythonCode }),
@@ -330,7 +338,7 @@ export default function App() {
   };
 
   const handleValidateJson = async () => {
-    const res = await fetch(`${process.env.VITE_API_BASE_URL}/actions/validate-json`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/actions/validate-json`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: jsonText }),
@@ -339,7 +347,7 @@ export default function App() {
   };
 
   const handleWriteFile = async () => {
-    const res = await fetch(`${process.env.VITE_API_BASE_URL}/actions/write-file`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/actions/write-file`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ file_path: writePath, content: writeContent }),
@@ -350,7 +358,7 @@ export default function App() {
   const handleListIssues = async () => {
     setIssuesLoading(true);
     try {
-      const res = await fetch(`${process.env.VITE_API_BASE_URL}/github/list-issues`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/github/list-issues`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ state: "open", per_page: 10 }),
@@ -367,7 +375,7 @@ export default function App() {
     setCreatedIssue(null);
 
     try {
-      const res = await fetch(`${process.env.VITE_API_BASE_URL}/github/create-issue`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/github/create-issue`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: issueTitle, body: issueBody }),
@@ -385,7 +393,7 @@ export default function App() {
     setRepoPushResult(null);
 
     try {
-      const res = await fetch(`${process.env.VITE_API_BASE_URL}/github/push-file`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/github/push-file`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -408,7 +416,7 @@ export default function App() {
     setBranchResult(null);
 
     try {
-      const res = await fetch(`${process.env.VITE_API_BASE_URL}/github/create-branch`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/github/create-branch`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -429,7 +437,7 @@ export default function App() {
     setPrResult(null);
 
     try {
-      const res = await fetch(`${process.env.VITE_API_BASE_URL}/github/create-pr`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/github/create-pr`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -470,10 +478,16 @@ export default function App() {
                 placeholder="Ask a question about your codebase or spec..."
               />
               <div style={{ marginTop: "14px" }}>
-                <button onClick={handleRun} disabled={loading} style={styles.button(loading)}>
-                  {loading ? "Analyzing..." : "Run Analysis"}
-                </button>
-              </div>
+      <button
+  onClick={async () => {
+    await handleRun();
+  }}
+  disabled={loading}
+  style={styles.button(loading)}
+>
+  {loading ? "Analyzing..." : "Run Analysis"}
+</button>
+</div>
             </div>
 
             <div style={styles.card}>
